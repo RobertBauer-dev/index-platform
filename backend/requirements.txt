@@ -11,7 +11,7 @@ psycopg2-binary==2.9.9
 google-cloud-bigquery==3.13.0
 
 # Authentication
-python-jose[cryptography]==3.3.0
+python-jose[cryptography]==3.5.0
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.6
 
@@ -21,8 +21,8 @@ numpy==1.25.2
 polars==0.20.2
 
 # API
-graphene==3.3
-graphene-sqlalchemy==3.0.0
+graphene==3.4.3
+graphene-sqlalchemy==3.0.0rc2
 requests==2.31.0
 httpx==0.25.2
 

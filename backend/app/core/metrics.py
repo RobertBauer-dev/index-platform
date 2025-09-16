@@ -129,7 +129,7 @@ class MetricsCollector:
     """Metrics collection and management"""
     
     def __init__(self):
-        self.app_info.info({
+        app_info.info({
             'version': '1.0.0',
             'name': 'index-platform',
             'environment': 'production'
