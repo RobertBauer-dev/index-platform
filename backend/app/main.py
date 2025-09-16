@@ -9,6 +9,8 @@ from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.core.database import init_db
 from app.api.api_v1.api import api_router
+from app.api.metrics_endpoint import router as metrics_router
+from app.api.middleware import MetricsMiddleware, LoggingMiddleware, SecurityMiddleware
 from app.graphql.schema import graphql_app
 
 
@@ -29,6 +31,11 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Add middleware
+app.add_middleware(SecurityMiddleware)
+app.add_middleware(LoggingMiddleware)
+app.add_middleware(MetricsMiddleware)
+
 # CORS Middleware
 app.add_middleware(
     CORSMiddleware,
@@ -46,6 +53,9 @@ app.add_middleware(
 
 # Include API Router
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+# Include Metrics Router
+app.include_router(metrics_router)
 
 # Include GraphQL
 app.mount("/graphql", graphql_app)

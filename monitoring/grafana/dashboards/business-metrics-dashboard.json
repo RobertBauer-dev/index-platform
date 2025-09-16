@@ -1,0 +1,212 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Index Platform - Business Metrics",
+    "tags": ["index-platform", "business", "metrics"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Index Calculations per Hour",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(index_calculations_total[1h]) * 3600",
+            "legendFormat": "Calculations/hour"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Calculations",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Data Ingestion Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(data_ingestion_records_total[5m])",
+            "legendFormat": "{{source}} records/sec"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Records/sec",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Active Users",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "active_users_total",
+            "legendFormat": "Active Users"
+          }
+        ],
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 4,
+        "title": "Total Securities",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "securities_total",
+            "legendFormat": "Securities"
+          }
+        ],
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 6,
+          "y": 8
+        }
+      },
+      {
+        "id": 5,
+        "title": "Total Indices",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "indices_total",
+            "legendFormat": "Indices"
+          }
+        ],
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 12,
+          "y": 8
+        }
+      },
+      {
+        "id": 6,
+        "title": "API Requests Today",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "increase(http_requests_total[24h])",
+            "legendFormat": "Requests"
+          }
+        ],
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 18,
+          "y": 8
+        }
+      },
+      {
+        "id": 7,
+        "title": "Index Performance Distribution",
+        "type": "histogram",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(index_calculation_duration_seconds_bucket[5m]))",
+            "legendFormat": "50th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(index_calculation_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(index_calculation_duration_seconds_bucket[5m]))",
+            "legendFormat": "99th percentile"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Seconds",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 12
+        }
+      },
+      {
+        "id": 8,
+        "title": "Data Quality Score",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "data_quality_score",
+            "legendFormat": "Quality Score"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 12
+        }
+      },
+      {
+        "id": 9,
+        "title": "Top Performing Indices",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, index_performance_total)",
+            "format": "table"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 20
+        }
+      },
+      {
+        "id": 10,
+        "title": "Error Rate by Endpoint",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~\"5..\"}[5m]) by (endpoint)",
+            "format": "table"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 20
+        }
+      }
+    ],
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "refresh": "1m"
+  }
+}
