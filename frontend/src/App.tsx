@@ -3,13 +3,14 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Components
-import Layout from './components/Layout';
-import Dashboard from './pages/Dashboard';
-import Indices from './pages/Indices';
-import Securities from './pages/Securities';
-import IndexBuilder from './pages/IndexBuilder';
-import Login from './pages/Login';
-import { AuthProvider } from './contexts/AuthContext';
+import Layout from './components/Layout.tsx';
+import Dashboard from './pages/Dashboard.tsx';
+import Indices from './pages/Indices.tsx';
+import Securities from './pages/Securities.tsx';
+import IndexBuilder from './pages/IndexBuilder.tsx';
+import Login from './pages/Login.tsx';
+import Register from './pages/Register.tsx';
+import { AuthProvider } from './contexts/AuthContext.tsx';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -28,6 +29,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/" element={<Layout />}>
               <Route index element={<Dashboard />} />
               <Route path="indices" element={<Indices />} />

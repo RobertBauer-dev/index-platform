@@ -1,8 +1,8 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import Sidebar from './Sidebar';
-import Header from './Header';
+import { useAuth } from '../contexts/AuthContext.tsx';
+import Sidebar from './Sidebar.tsx';
+import Header from './Header.tsx';
 
 const Layout: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();

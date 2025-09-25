@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext.tsx';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -13,15 +13,22 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('📝 Login form submitted with:', { username, password: '***' });
     setError('');
     setIsLoading(true);
 
     try {
+      console.log('🔄 Calling login function...');
       await login(username, password);
+      console.log('✅ Login successful, navigating to dashboard...');
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Login failed');
+      console.error('❌ Login form error:', err);
+      const errorMessage = err.response?.data?.detail || err.message || 'Login failed';
+      console.log('📝 Setting error message:', errorMessage);
+      setError(errorMessage);
     } finally {
+      console.log('🏁 Login process finished, setting loading to false');
       setIsLoading(false);
     }
   };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { api } from '../services/api';
-import { ChartBarIcon, BuildingLibraryIcon, TrendingUpIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
+import { api } from '../services/api.ts';
+import { ChartBarIcon, BuildingLibraryIcon, ArrowTrendingUpIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
 
 const Dashboard: React.FC = () => {
   // Fetch dashboard data
@@ -31,7 +31,7 @@ const Dashboard: React.FC = () => {
     {
       name: 'Active Indices',
       value: indices?.data?.filter((i: any) => i.is_active)?.length || 0,
-      icon: TrendingUpIcon,
+      icon: ArrowTrendingUpIcon,
       color: 'bg-purple-500',
     },
     {

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { api } from '../services/api';
+import { api } from '../services/api.ts';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { PlusIcon, PlayIcon, DownloadIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PlayIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 const IndexBuilder: React.FC = () => {
   const [step, setStep] = useState(1);
@@ -399,7 +399,7 @@ const IndexBuilder: React.FC = () => {
                 className="btn btn-secondary"
                 onClick={() => {/* Export logic */}}
               >
-                <DownloadIcon className="h-4 w-4 mr-2" />
+                <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
                 Export Results
               </button>
             </div>

@@ -10,7 +10,7 @@ from app.core.config import settings
 from app.core.database import init_db
 from app.api.api_v1.api import api_router
 from app.api.metrics_endpoint import router as metrics_router
-from app.api.middleware import MetricsMiddleware, LoggingMiddleware, SecurityMiddleware
+from app.api.middleware import SecurityMiddleware
 # from app.graphql.schema import graphql_app  # Temporarily disabled
 
 
@@ -31,12 +31,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Add middleware
-app.add_middleware(SecurityMiddleware)
-app.add_middleware(LoggingMiddleware)
-app.add_middleware(MetricsMiddleware)
-
-# CORS Middleware
+# CORS Middleware (must be first)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.BACKEND_CORS_ORIGINS,
@@ -44,6 +39,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add middleware
+app.add_middleware(SecurityMiddleware)
 
 # Trusted Host Middleware
 app.add_middleware(

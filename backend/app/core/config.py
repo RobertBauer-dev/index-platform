@@ -2,7 +2,7 @@
 Application configuration
 """
 from typing import List, Union
-from pydantic import AnyHttpUrl, validator
+from pydantic import validator
 from pydantic_settings import BaseSettings
 
 
@@ -25,8 +25,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # CORS
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
+    BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:3000",  # React dev server
+        "http://localhost:3003",  # Frontend container
         "http://localhost:8080",  # Alternative frontend
     ]
     

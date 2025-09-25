@@ -4,7 +4,6 @@ Middleware for metrics collection and monitoring
 import time
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
-from prometheus_client import Counter, Histogram, Gauge
 import logging
 
 from app.core.metrics import metrics_collector
@@ -17,26 +16,11 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     
     def __init__(self, app):
         super().__init__(app)
-        self.request_count = Counter(
-            'http_requests_total',
-            'Total HTTP requests',
-            ['method', 'endpoint', 'status']
-        )
-        self.request_duration = Histogram(
-            'http_request_duration_seconds',
-            'HTTP request duration in seconds',
-            ['method', 'endpoint']
-        )
-        self.active_connections = Gauge(
-            'http_connections_active',
-            'Number of active HTTP connections'
-        )
         self._active_connections = 0
     
     async def dispatch(self, request: Request, call_next):
         # Increment active connections
         self._active_connections += 1
-        self.active_connections.set(self._active_connections)
         
         # Record request start time
         start_time = time.time()
@@ -45,24 +29,8 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         try:
             response = await call_next(request)
             
-            # Record metrics
+            # Record metrics using the existing metrics collector
             duration = time.time() - start_time
-            method = request.method
-            endpoint = request.url.path
-            status = str(response.status_code)
-            
-            self.request_count.labels(
-                method=method,
-                endpoint=endpoint,
-                status=status
-            ).inc()
-            
-            self.request_duration.labels(
-                method=method,
-                endpoint=endpoint
-            ).observe(duration)
-            
-            # Also record in metrics collector
             metrics_collector.record_http_request(request, response, duration)
             
             return response
@@ -73,24 +41,12 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             method = request.method
             endpoint = request.url.path
             
-            self.request_count.labels(
-                method=method,
-                endpoint=endpoint,
-                status='500'
-            ).inc()
-            
-            self.request_duration.labels(
-                method=method,
-                endpoint=endpoint
-            ).observe(duration)
-            
             logger.error(f"Request failed: {method} {endpoint} - {str(e)}")
             raise e
             
         finally:
             # Decrement active connections
             self._active_connections -= 1
-            self.active_connections.set(self._active_connections)
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):
