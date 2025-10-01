@@ -37,6 +37,9 @@ services:
       - DATABASE_URL=postgresql://index_user:index_password@db:5432/index_platform
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=your-secret-key-change-in-production
+      - ALPHA_VANTAGE_API_KEY=${ALPHA_VANTAGE_API_KEY}
+      - POLYGON_API_KEY=${POLYGON_API_KEY}
+      - QUANDL_API_KEY=${QUANDL_API_KEY}
     ports:
       - "8000:8000"
     depends_on:

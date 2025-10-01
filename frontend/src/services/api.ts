@@ -85,6 +85,22 @@ export const api = {
     getPrices: (id: number, params?: any) => apiClient.get(`/securities/${id}/prices`, { params }),
     getSectors: () => apiClient.get('/securities/sectors'),
     getCountries: () => apiClient.get('/securities/countries'),
+    // Market Cap endpoints
+    updateMarketCap: (id: number, source?: string) => apiClient.post(`/securities/${id}/market-cap/update`, null, { 
+      params: { source: source || 'auto' } 
+    }),
+    batchUpdateMarketCap: (symbols: string[], source?: string) => apiClient.post('/securities/market-cap/batch-update', null, {
+      params: { 
+        symbols: symbols,
+        source: source || 'auto'
+      }
+    }),
+    updateAllMarketCaps: (source?: string, limit?: number) => apiClient.post('/securities/market-cap/update-all', null, {
+      params: { 
+        source: source || 'auto',
+        limit: limit || 100
+      }
+    }),
   },
 
   // Indices

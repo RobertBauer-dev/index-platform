@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api.ts';
-import { PlusIcon, BuildingLibraryIcon, PencilIcon, TrashIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, BuildingLibraryIcon, PencilIcon, TrashIcon, MagnifyingGlassIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 const Securities: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSector, setSelectedSector] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null);
   const queryClient = useQueryClient();
 
   // Fetch securities
@@ -40,26 +41,148 @@ const Securities: React.FC = () => {
     },
   });
 
+  // Market cap update mutations
+  const updateMarketCapMutation = useMutation({
+    mutationFn: (id: number) => api.securities.updateMarketCap(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['securities'] });
+    },
+  });
+
+  const batchUpdateMarketCapMutation = useMutation({
+    mutationFn: (symbols: string[]) => api.securities.batchUpdateMarketCap(symbols),
+    onSuccess: (data) => {
+      console.log('Market cap batch update response:', data);
+      queryClient.invalidateQueries({ queryKey: ['securities'] });
+      setNotification({
+        type: 'success',
+        message: `Market caps updated successfully!`
+      });
+      setTimeout(() => setNotification(null), 5000);
+    },
+    onError: (error: any) => {
+      console.error('Market cap batch update error:', error);
+      setNotification({
+        type: 'error',
+        message: error.response?.data?.detail || 'Failed to update market caps'
+      });
+      setTimeout(() => setNotification(null), 5000);
+    },
+  });
+
+  const updateAllMarketCapMutation = useMutation({
+    mutationFn: () => api.securities.updateAllMarketCaps(),
+    onSuccess: (data) => {
+      console.log('Market cap update all response:', data);
+      queryClient.invalidateQueries({ queryKey: ['securities'] });
+      setNotification({
+        type: 'success',
+        message: `All market caps updated successfully!`
+      });
+      setTimeout(() => setNotification(null), 5000);
+    },
+    onError: (error: any) => {
+      console.error('Market cap update all error:', error);
+      setNotification({
+        type: 'error',
+        message: error.response?.data?.detail || 'Failed to update all market caps'
+      });
+      setTimeout(() => setNotification(null), 5000);
+    },
+  });
+
   const handleDelete = (id: number) => {
     if (window.confirm('Are you sure you want to delete this security?')) {
       deleteMutation.mutate(id);
     }
   };
 
+  const handleUpdateMarketCap = (id: number) => {
+    updateMarketCapMutation.mutate(id);
+  };
+
+  const handleBatchUpdateMarketCap = () => {
+    if (!securities?.data) return;
+    const symbols = securities.data.map((s: any) => s.symbol);
+    batchUpdateMarketCapMutation.mutate(symbols);
+  };
+
+  const handleUpdateAllMarketCap = () => {
+    if (window.confirm('This will update market cap for all securities. Continue?')) {
+      updateAllMarketCapMutation.mutate();
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-fade-in">
+      {/* Notification */}
+      {notification && (
+        <div className={`fixed top-4 right-4 z-50 max-w-md rounded-xl p-4 shadow-strong border ${
+          notification.type === 'success' 
+            ? 'bg-success-50 border-success-200' 
+            : 'bg-danger-50 border-danger-200'
+        } animate-slide-down`}>
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              {notification.type === 'success' ? (
+                <svg className="h-5 w-5 text-success-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg className="h-5 w-5 text-danger-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              )}
+            </div>
+            <div className="ml-3">
+              <p className={`text-sm font-medium ${
+                notification.type === 'success' ? 'text-success-800' : 'text-danger-800'
+              }`}>
+                {notification.message}
+              </p>
+            </div>
+            <button
+              onClick={() => setNotification(null)}
+              className="ml-auto text-secondary-400 hover:text-secondary-600"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+      
       {/* Page header */}
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <h1 className="text-2xl font-bold text-gray-900">Securities</h1>
-          <p className="mt-2 text-sm text-gray-700">
-            Manage your securities database.
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-secondary-900">Securities</h1>
+          <p className="mt-2 text-sm text-secondary-600">
+            Manage your securities database and market data
           </p>
         </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+        <div className="flex items-center space-x-3">
           <button
             type="button"
-            className="btn btn-primary"
+            className="px-4 py-2 text-sm font-medium text-secondary-700 bg-white border border-secondary-300 rounded-xl hover:bg-secondary-50 transition-all duration-200 flex items-center disabled:opacity-50"
+            onClick={handleBatchUpdateMarketCap}
+            disabled={batchUpdateMarketCapMutation.isPending || updateAllMarketCapMutation.isPending}
+          >
+            <ArrowPathIcon className={`h-4 w-4 mr-2 ${batchUpdateMarketCapMutation.isPending ? 'animate-spin' : ''}`} />
+            {batchUpdateMarketCapMutation.isPending ? 'Updating...' : 'Update Visible'}
+          </button>
+          <button
+            type="button"
+            className="px-4 py-2 text-sm font-medium text-white bg-warning-600 rounded-xl hover:bg-warning-700 transition-all duration-200 shadow-soft flex items-center disabled:opacity-50"
+            onClick={handleUpdateAllMarketCap}
+            disabled={updateAllMarketCapMutation.isPending || batchUpdateMarketCapMutation.isPending}
+          >
+            <ArrowPathIcon className={`h-4 w-4 mr-2 ${updateAllMarketCapMutation.isPending ? 'animate-spin' : ''}`} />
+            {updateAllMarketCapMutation.isPending ? 'Updating All...' : 'Update All'}
+          </button>
+          <button
+            type="button"
+            className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 transition-all duration-200 shadow-soft flex items-center"
             onClick={() => setIsCreateModalOpen(true)}
           >
             <PlusIcon className="h-4 w-4 mr-2" />
@@ -195,6 +318,14 @@ const Securities: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-2">
+                        <button
+                          className="text-blue-600 hover:text-blue-900"
+                          onClick={() => handleUpdateMarketCap(security.id)}
+                          disabled={updateMarketCapMutation.isPending}
+                          title="Update Market Cap"
+                        >
+                          <ArrowPathIcon className="h-4 w-4" />
+                        </button>
                         <button
                           className="text-primary-600 hover:text-primary-900"
                           onClick={() => {/* Edit logic */}}

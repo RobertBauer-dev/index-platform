@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.db import models, schemas
 from app.api.api_v1.deps import get_current_user
+from app.services.market_cap_service import MarketCapService
 
 router = APIRouter()
 
@@ -162,3 +163,139 @@ async def get_countries(db: Session = Depends(get_db)):
         models.Security.country != ""
     ).all()
     return [country[0] for country in countries]
+
+
+@router.post("/{security_id}/market-cap/update")
+async def update_market_cap(
+    security_id: int,
+    source: str = Query("auto", description="Data source: auto, alpha_vantage, polygon, yahoo_finance"),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Update market cap for a specific security"""
+    security = db.query(models.Security).filter(models.Security.id == security_id).first()
+    if not security:
+        raise HTTPException(status_code=404, detail="Security not found")
+    
+    market_cap_service = MarketCapService()
+    market_cap = market_cap_service.fetch_market_cap(security.symbol, source)
+    
+    if market_cap is None:
+        raise HTTPException(status_code=404, detail=f"Could not fetch market cap for {security.symbol}")
+    
+    # Update the security with new market cap
+    security.market_cap = market_cap
+    db.commit()
+    db.refresh(security)
+    
+    return {
+        "security_id": security_id,
+        "symbol": security.symbol,
+        "market_cap": market_cap,
+        "source": source,
+        "message": f"Market cap updated successfully for {security.symbol}"
+    }
+
+
+@router.post("/market-cap/batch-update")
+async def batch_update_market_caps(
+    symbols: List[str] = Query(..., description="List of security symbols to update"),
+    source: str = Query("auto", description="Data source: auto, alpha_vantage, polygon, yahoo_finance"),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Batch update market cap for multiple securities"""
+    if not symbols:
+        raise HTTPException(status_code=400, detail="No symbols provided")
+    
+    if len(symbols) > 50:  # Limit batch size
+        raise HTTPException(status_code=400, detail="Too many symbols. Maximum 50 per batch.")
+    
+    market_cap_service = MarketCapService()
+    market_caps = market_cap_service.batch_fetch_market_caps(symbols, source)
+    
+    results = {
+        "updated": [],
+        "failed": [],
+        "not_found": []
+    }
+    
+    for symbol, market_cap in market_caps.items():
+        security = db.query(models.Security).filter(models.Security.symbol == symbol).first()
+        
+        if not security:
+            results["not_found"].append(symbol)
+            continue
+        
+        if market_cap is None:
+            results["failed"].append(symbol)
+            continue
+        
+        try:
+            security.market_cap = market_cap
+            db.commit()
+            results["updated"].append({
+                "symbol": symbol,
+                "security_id": security.id,
+                "market_cap": market_cap
+            })
+        except Exception as e:
+            db.rollback()
+            results["failed"].append(symbol)
+    
+    return {
+        "total_requested": len(symbols),
+        "updated_count": len(results["updated"]),
+        "failed_count": len(results["failed"]),
+        "not_found_count": len(results["not_found"]),
+        "results": results
+    }
+
+
+@router.post("/market-cap/update-all")
+async def update_all_market_caps(
+    source: str = Query("auto", description="Data source: auto, alpha_vantage, polygon, yahoo_finance"),
+    limit: int = Query(100, ge=1, le=500, description="Maximum number of securities to update"),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Update market cap for all active securities (with limit)"""
+    securities = db.query(models.Security).filter(
+        models.Security.is_active == True,
+        models.Security.market_cap.is_(None)  # Only update securities without market cap
+    ).limit(limit).all()
+    
+    if not securities:
+        return {
+            "message": "No securities found that need market cap updates",
+            "updated": 0,
+            "total_securities": 0
+        }
+    
+    symbols = [s.symbol for s in securities]
+    market_cap_service = MarketCapService()
+    market_caps = market_cap_service.batch_fetch_market_caps(symbols, source)
+    
+    updated_count = 0
+    failed_count = 0
+    
+    for security in securities:
+        market_cap = market_caps.get(security.symbol)
+        
+        if market_cap is not None:
+            try:
+                security.market_cap = market_cap
+                updated_count += 1
+            except Exception as e:
+                failed_count += 1
+        else:
+            failed_count += 1
+    
+    db.commit()
+    
+    return {
+        "message": f"Market cap update completed for {len(securities)} securities",
+        "updated": updated_count,
+        "failed": failed_count,
+        "total_securities": len(securities)
+    }

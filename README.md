@@ -9,6 +9,9 @@
 [![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)](https://docker.com)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-Ready-blue.svg)](https://kubernetes.io)
 
+![Index Platform Dashboard](dashboard.jpeg)
+*Dashboard für Index Management*
+
 ## 📋 Inhaltsverzeichnis
 
 - [Überblick](#überblick)
