@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { useNavigate } from 'react-router-dom';
-import { BellIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { BellIcon, MagnifyingGlassIcon, Cog6ToothIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../contexts/AuthContext.tsx';
 
 const Header: React.FC = () => {
@@ -14,72 +14,100 @@ const Header: React.FC = () => {
   };
 
   return (
-    <div className="sticky top-0 z-40 lg:mx-auto lg:max-w-7xl lg:px-8">
-      <div className="flex h-16 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-0 lg:shadow-none">
-        <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-          <div className="flex flex-1"></div>
-          <div className="flex items-center gap-x-4 lg:gap-x-6">
-            {/* Notifications */}
-            <button
-              type="button"
-              className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500"
-            >
-              <span className="sr-only">View notifications</span>
-              <BellIcon className="h-6 w-6" aria-hidden="true" />
-            </button>
+    <div className="sticky top-0 z-40 bg-white border-b border-secondary-200 shadow-sm">
+      <div className="flex h-16 items-center gap-x-6 px-6 lg:px-8">
+        <div className="flex flex-1 gap-x-6">
+          {/* Search */}
+          <div className="flex flex-1 max-w-lg">
+            <div className="relative w-full">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <MagnifyingGlassIcon className="h-5 w-5 text-secondary-400" />
+              </div>
+              <input
+                type="search"
+                placeholder="Search indices, securities..."
+                className="block w-full rounded-xl border border-secondary-300 bg-white py-2 pl-10 pr-3 text-sm placeholder:text-secondary-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all duration-200"
+              />
+            </div>
+          </div>
+        </div>
 
-            {/* Separator */}
-            <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200" aria-hidden="true" />
+        <div className="flex items-center gap-x-4">
+          {/* Notifications */}
+          <button
+            type="button"
+            className="relative p-2 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-50 rounded-xl transition-all duration-200"
+          >
+            <span className="sr-only">View notifications</span>
+            <BellIcon className="h-6 w-6" />
+            {/* Notification Badge */}
+            <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-danger-500 ring-2 ring-white"></span>
+          </button>
 
-            {/* Profile dropdown */}
-            <Menu as="div" className="relative">
-              <Menu.Button className="-m-1.5 flex items-center p-1.5">
-                <span className="sr-only">Open user menu</span>
-                <UserCircleIcon className="h-8 w-8 text-gray-400" aria-hidden="true" />
-                <span className="hidden lg:flex lg:items-center">
-                  <span className="ml-4 text-sm font-semibold leading-6 text-gray-900" aria-hidden="true">
-                    {user?.full_name || user?.username}
+          {/* Separator */}
+          <div className="hidden lg:block h-6 w-px bg-secondary-200" />
+
+          {/* Profile dropdown */}
+          <Menu as="div" className="relative">
+            <Menu.Button className="flex items-center gap-x-3 hover:bg-secondary-50 rounded-xl px-3 py-2 transition-all duration-200">
+              <div className="flex items-center gap-x-3">
+                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-soft">
+                  <span className="text-sm font-semibold text-white">
+                    {user?.username?.substring(0, 2).toUpperCase() || 'U'}
                   </span>
-                </span>
-              </Menu.Button>
-              <Transition
-                as={Fragment}
-                enter="transition ease-out duration-100"
-                enterFrom="transform opacity-0 scale-95"
-                enterTo="transform opacity-100 scale-100"
-                leave="transition ease-in duration-75"
-                leaveFrom="transform opacity-100 scale-100"
-                leaveTo="transform opacity-0 scale-95"
-              >
-                <Menu.Items className="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
+                </div>
+                <div className="hidden lg:block text-left">
+                  <p className="text-sm font-medium text-secondary-900">
+                    {user?.full_name || user?.username}
+                  </p>
+                  <p className="text-xs text-secondary-600">
+                    {user?.email || 'Admin'}
+                  </p>
+                </div>
+              </div>
+            </Menu.Button>
+            <Transition
+              as={Fragment}
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-xl bg-white shadow-strong ring-1 ring-secondary-900/5 focus:outline-none overflow-hidden">
+                <div className="p-2">
                   <Menu.Item>
                     {({ active }) => (
                       <button
                         className={`${
-                          active ? 'bg-gray-50' : ''
-                        } block w-full px-3 py-1 text-left text-sm leading-6 text-gray-900`}
+                          active ? 'bg-secondary-50' : ''
+                        } group flex w-full items-center rounded-lg px-3 py-2 text-sm text-secondary-900 transition-colors duration-150`}
                         onClick={() => navigate('/profile')}
                       >
-                        Your profile
+                        <Cog6ToothIcon className="mr-3 h-5 w-5 text-secondary-400 group-hover:text-secondary-600" />
+                        Account Settings
                       </button>
                     )}
                   </Menu.Item>
+                  <div className="my-1 h-px bg-secondary-200" />
                   <Menu.Item>
                     {({ active }) => (
                       <button
                         className={`${
-                          active ? 'bg-gray-50' : ''
-                        } block w-full px-3 py-1 text-left text-sm leading-6 text-gray-900`}
+                          active ? 'bg-danger-50' : ''
+                        } group flex w-full items-center rounded-lg px-3 py-2 text-sm text-danger-700 transition-colors duration-150`}
                         onClick={handleLogout}
                       >
-                        Sign out
+                        <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5 text-danger-400 group-hover:text-danger-600" />
+                        Sign Out
                       </button>
                     )}
                   </Menu.Item>
-                </Menu.Items>
-              </Transition>
-            </Menu>
-          </div>
+                </div>
+              </Menu.Items>
+            </Transition>
+          </Menu>
         </div>
       </div>
     </div>

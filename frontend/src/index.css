@@ -5,39 +5,60 @@
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
+    @apply antialiased;
+  }
+  
+  body {
+    @apply bg-secondary-50 text-secondary-900;
   }
 }
 
 @layer components {
+  /* Modern Button Styles */
   .btn {
-    @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+    @apply px-4 py-2 rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
   
   .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply bg-primary-600 text-white hover:bg-primary-700 shadow-soft hover:shadow-medium focus:ring-primary-500;
   }
   
   .btn-secondary {
-    @apply bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2;
+    @apply bg-secondary-100 text-secondary-900 hover:bg-secondary-200 border border-secondary-200 focus:ring-secondary-500;
   }
   
   .btn-outline {
-    @apply border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply border border-secondary-300 bg-white text-secondary-700 hover:bg-secondary-50 focus:ring-secondary-500;
   }
   
+  /* Modern Input Styles */
   .input {
-    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
+    @apply block w-full rounded-xl border border-secondary-300 bg-white px-4 py-3 text-sm placeholder:text-secondary-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all duration-200;
   }
   
+  /* Modern Card Styles */
   .card {
-    @apply bg-white overflow-hidden shadow rounded-lg;
+    @apply bg-white overflow-hidden shadow-soft rounded-2xl border border-secondary-100;
   }
   
   .card-header {
-    @apply px-4 py-5 sm:px-6 border-b border-gray-200;
+    @apply px-6 py-5 border-b border-secondary-100;
   }
   
   .card-body {
-    @apply px-4 py-5 sm:p-6;
+    @apply px-6 py-6;
+  }
+  
+  /* Scrollbar Styling */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-secondary-100;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-secondary-300 rounded-full hover:bg-secondary-400;
   }
 }

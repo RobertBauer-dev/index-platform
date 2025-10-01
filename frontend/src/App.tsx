@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Layout from './components/Layout.tsx';
 import Dashboard from './pages/Dashboard.tsx';
 import Indices from './pages/Indices.tsx';
+import IndexDetail from './pages/IndexDetail.tsx';
 import Securities from './pages/Securities.tsx';
 import IndexBuilder from './pages/IndexBuilder.tsx';
 import Login from './pages/Login.tsx';
@@ -33,6 +34,7 @@ function App() {
             <Route path="/" element={<Layout />}>
               <Route index element={<Dashboard />} />
               <Route path="indices" element={<Indices />} />
+              <Route path="indices/:id" element={<IndexDetail />} />
               <Route path="securities" element={<Securities />} />
               <Route path="builder" element={<IndexBuilder />} />
             </Route>
