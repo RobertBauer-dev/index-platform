@@ -674,7 +674,7 @@ checkpoints/
 # Images (if not needed in repo)
 *.png
 *.jpg
-*.jpeg
+#*.jpeg
 *.gif
 *.bmp
 *.tiff
