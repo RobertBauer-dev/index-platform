@@ -3,7 +3,6 @@ Unit tests for data processing functionality
 """
 import pytest
 from unittest.mock import Mock, patch
-import pandas as pd
 from datetime import datetime, date
 
 from app.processing.data_cleaner import DataCleaner
